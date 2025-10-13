@@ -1,0 +1,5 @@
+{
+  "name": "Gemini 360 View Generator",
+  "description": "An application to generate six high-resolution photographic views (front, back, left, right, top, bottom) of a subject using a reference image, powered by the Gemini API.",
+  "requestFramePermissions": []
+}
