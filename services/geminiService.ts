@@ -8,7 +8,6 @@ if (!process.env.API_KEY) {
 }
 
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-const model = ai.models['gemini-2.5-flash-image'];
 
 export const generateSixViews = async (base64Image: string, mimeType: string): Promise<GeneratedImage[]> => {
   const imagePart = {
@@ -22,7 +21,8 @@ export const generateSixViews = async (base64Image: string, mimeType: string): P
     try {
       const textPart = { text: viewConfig.prompt };
       
-      const response = await model.generateContent({
+      const response = await ai.models.generateContent({
+          model: 'gemini-2.5-flash-image',
           contents: { parts: [imagePart, textPart] },
           config: {
               responseModalities: [Modality.IMAGE, Modality.TEXT],

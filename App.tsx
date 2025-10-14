@@ -72,10 +72,10 @@ const App: React.FC = () => {
         <header className="text-center my-8">
             <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight">
                 <span className="bg-gradient-to-r from-blue-400 to-purple-500 text-transparent bg-clip-text">
-                360° View Generator
+                karim banaqqa
                 </span>
             </h1>
-            <p className="mt-4 text-lg text-gray-400">Upload a reference image to generate six photographic views with Gemini.</p>
+            <p className="mt-4 text-lg text-gray-400">Upload a reference image to generate six photographic views with aqqa.</p>
         </header>
 
         <section className="w-full flex flex-col items-center gap-6 mt-6">
@@ -109,7 +109,7 @@ const App: React.FC = () => {
       </main>
 
       <footer className="text-center text-gray-500 mt-16 pb-8">
-        <p>Powered by Google Gemini</p>
+        <p>Powered by aqqa</p>
       </footer>
     </div>
   );

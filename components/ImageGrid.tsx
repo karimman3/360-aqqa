@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { GeneratedImage } from '../types';
 
@@ -7,6 +6,18 @@ interface ImageCardProps {
 }
 
 const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
+  const handleDownload = () => {
+    if (!image.src) return;
+    const link = document.createElement('a');
+    link.href = image.src;
+    const mimeType = image.src.split(';')[0].split(':')[1];
+    const extension = mimeType ? mimeType.split('/')[1] : 'png';
+    link.download = `${image.view.toLowerCase().replace(/\s+/g, '-')}-view.${extension}`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div className="bg-gray-800 rounded-lg shadow-lg overflow-hidden flex flex-col">
       <div className="aspect-square w-full bg-gray-700 flex items-center justify-center">
@@ -19,8 +30,18 @@ const ImageCard: React.FC<ImageCardProps> = ({ image }) => {
           </div>
         )}
       </div>
-      <div className="p-3 bg-gray-800/50">
-        <h3 className="text-center font-semibold text-gray-300">{image.view}</h3>
+      <div className="p-3 bg-gray-800/50 flex justify-between items-center">
+        <h3 className="font-semibold text-gray-300">{image.view}</h3>
+        {image.src && (
+          <button
+            onClick={handleDownload}
+            title={`Download ${image.view} view`}
+            aria-label={`Download ${image.view} view`}
+            className="p-2 text-gray-400 bg-gray-700 rounded-full hover:bg-gray-600 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-indigo-500 transition-colors"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+          </button>
+        )}
       </div>
     </div>
   );
