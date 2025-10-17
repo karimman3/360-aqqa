@@ -1,51 +1,164 @@
-
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>karim banaqqa</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            colors: {
-              'brand-blue': '#1e40af',
-              'brand-purple': '#5b21b6',
-            },
-            animation: {
-              'gradient-x': 'gradient-x 5s ease infinite',
-            },
-            keyframes: {
-              'gradient-x': {
-                '0%, 100%': {
-                  'background-size': '200% 200%',
-                  'background-position': 'left center',
-                },
-                '50%': {
-                  'background-size': '200% 200%',
-                  'background-position': 'right center',
-                },
-              },
-            },
-          },
-        },
-      }
-    </script>
-  <script type="importmap">
-{
-  "imports": {
-    "react/": "https://aistudiocdn.com/react@^19.2.0/",
-    "react": "https://aistudiocdn.com/react@^19.2.0",
-    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
-    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.24.0"
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>توليد فيديو بالذكاء الاصطناعي</title>
+<style>
+  body {
+    font-family: "Tahoma", sans-serif;
+    direction: rtl;
+    background-color: #0f172a;
+    color: #f8fafc;
+    margin: 0; padding: 0;
   }
-}
-</script>
+  header {
+    background-color: #1e293b;
+    padding: 1rem;
+    text-align: center;
+    font-size: 1.3rem;
+    font-weight: bold;
+    letter-spacing: 1px;
+  }
+  main {
+    max-width: 700px;
+    margin: 2rem auto;
+    background: #1e293b;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 0 10px #0f172a;
+  }
+  label { display: block; margin: 0.5rem 0 0.2rem; font-weight: bold; }
+  textarea, select, input {
+    width: 100%;
+    padding: 0.8rem;
+    border-radius: 8px;
+    border: none;
+    background-color: #334155;
+    color: #f8fafc;
+    font-size: 1rem;
+  }
+  button {
+    margin-top: 1rem;
+    padding: 0.8rem 1.5rem;
+    border: none;
+    background-color: #3b82f6;
+    color: white;
+    font-size: 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+  button:hover { background-color: #2563eb; }
+  #status {
+    background-color: #0f172a;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-top: 1rem;
+    white-space: pre-wrap;
+    font-family: monospace;
+    font-size: 0.9rem;
+  }
+  video {
+    width: 100%;
+    margin-top: 1rem;
+    border-radius: 8px;
+    display: none;
+  }
+</style>
 </head>
-  <body class="bg-gray-900 text-white">
-    <div id="root"></div>
-    <script type="module" src="/index.tsx"></script>
-  </body>
+<body>
+<header>🎥 توليد فيديو بالذكاء الاصطناعي</header>
+
+<main>
+  <label>النص الوصفي للمشهد:</label>
+  <textarea id="prompt" rows="4">رجل يمشي في شارع ضبابي صباحاً، إضاءة ناعمة، أسلوب سينمائي</textarea>
+
+  <label>الدقة المطلوبة:</label>
+  <select id="resolution">
+    <option value="720">720p</option>
+    <option value="1080">1080p</option>
+  </select>
+
+  <label>رابط واجهة التوليد (API Endpoint):</label>
+  <input type="text" id="apiUrl" placeholder="https://api.example.com/v1/generate">
+
+  <label>مفتاح الوصول (API Key):</label>
+  <input type="password" id="apiKey" placeholder="مثال: sk-xxxxxxxx">
+
+  <button id="generate">ابدأ التوليد</button>
+
+  <div id="status">جاهز.</div>
+  <video id="result" controls></video>
+</main>
+
+<script>
+const btn = document.getElementById('generate');
+const statusBox = document.getElementById('status');
+const resultVideo = document.getElementById('result');
+
+btn.addEventListener('click', async () => {
+  const prompt = document.getElementById('prompt').value.trim();
+  const resolution = document.getElementById('resolution').value;
+  const apiUrl = document.getElementById('apiUrl').value.trim();
+  const apiKey = document.getElementById('apiKey').value.trim();
+
+  if (!prompt || !apiUrl || !apiKey) {
+    statusBox.textContent = "⚠️ الرجاء تعبئة كل الحقول.";
+    return;
+  }
+
+  statusBox.textContent = "⏳ جاري إرسال الطلب...";
+  resultVideo.style.display = "none";
+
+  try {
+    const response = await fetch(apiUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + apiKey
+      },
+      body: JSON.stringify({
+        prompt,
+        resolution
+      })
+    });
+
+    if (!response.ok) {
+      const txt = await response.text();
+      throw new Error("خطأ من الخادم: " + txt);
+    }
+
+    const data = await response.json();
+    statusBox.textContent = "✅ تم قبول الطلب.\n" + JSON.stringify(data, null, 2);
+
+    // في أغلب مزودي خدمات الفيديو، الرد يحتوي على task_id أو video_url
+    if (data.result_url) {
+      resultVideo.src = data.result_url;
+      resultVideo.style.display = "block";
+      statusBox.textContent += "\n🎬 تم توليد الفيديو بنجاح.";
+    } else if (data.task_id) {
+      statusBox.textContent += "\n⌛ جاري انتظار اكتمال المهمة...";
+      // تحقق دوري
+      const interval = setInterval(async () => {
+        const res2 = await fetch(apiUrl + "/" + data.task_id, {
+          headers: { "Authorization": "Bearer " + apiKey }
+        });
+        const job = await res2.json();
+        statusBox.textContent = JSON.stringify(job, null, 2);
+        if (job.status === "done" && job.result_url) {
+          clearInterval(interval);
+          resultVideo.src = job.result_url;
+          resultVideo.style.display = "block";
+          statusBox.textContent += "\n🎥 الفيديو جاهز.";
+        }
+      }, 5000);
+    }
+
+  } catch (err) {
+    statusBox.textContent = "❌ خطأ: " + err.message;
+  }
+});
+</script>
+</body>
 </html>
